@@ -5,9 +5,12 @@ const dbConnection = async () => {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      // useCreateIndex: true,
     });
 
-    console.log("Successfully Connected to DB called 'CALENDAR'.");
+    console.log(
+      "Successfully Connected to DB called =====> 'CALENDAR' <======."
+    );
   } catch (error) {
     console.log(error);
     throw new Error(
