@@ -41,7 +41,7 @@ router.use(
   newUserRoute
 );
 
-router.use("/renew-token", validateToken, renew);
+router.use("/renew", validateToken, renew);
 
 module.exports = router;
 

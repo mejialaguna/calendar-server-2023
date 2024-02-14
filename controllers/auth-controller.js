@@ -1,9 +1,9 @@
-const { response } = require("express");
-const bcrypt = require("bcrypt");
+const { response } = require('express');
+const bcrypt = require('bcrypt');
 
-const { User } = require("../models");
+const { User } = require('../models');
 
-const { jwToken } = require("../helpers/jwToken");
+const { jwToken } = require('../helpers/jwToken');
 
 // todo <============================== add new user ===================================>
 
@@ -86,15 +86,19 @@ const loginUser = async (req, res = response) => {
 
 const revalidateToken = async (req, res = response) => {
   //!! we are receiving all user information from the got decoded from validateJwToken middleware.
-  const { id, name, email } = req;
+
+  const { userId, username, userEmail } = req;
 
   // !! we are re-issuing the token to give the user a new token.
-  const revalidatedToken = await jwToken({ id, name, email });
+  const revalidatedToken = await jwToken(userId, username, userEmail);
 
-  res.status(200).json({
+  res.json({
     ok: true,
-    message: "token revalidated and renew",
-    revalidatedToken,
+    userId,
+    username,
+    userEmail,
+    message: 'token revalidated and renew',
+    token: revalidatedToken,
   });
 };
 
