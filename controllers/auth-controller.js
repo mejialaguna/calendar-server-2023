@@ -44,8 +44,6 @@ const addNewUser = async (req, res = response) => {
   }
 };
 
-// todo <============================== login user ===================================>
-
 const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
 
@@ -53,26 +51,33 @@ const loginUser = async (req, res = response) => {
     // !! on login checking if the user already exists.
     const user = await User.findOne({ email });
 
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        msg: `user doesnt exist with that email ${email}`,
+      });
+    }
+
     // !we are using user const in line  #40 not the user model instance.
     // !! checking if the user password from the payload is correct and it matches the encrypted version on db.
     const validPassword = bcrypt.compareSync(password, user.password);
 
+    if (!validPassword) {
+      return res.status(400).json({
+        ok: false,
+        msg: `invalid password`,
+      });
+    }
     //  ! creating a JWT with user payload and send it to the frontend
 
     const token = await jwToken(user.id, user.username, user.email);
 
-    if (!!user && validPassword) {
-      return res.status(200).json({
-        ok: true,
-
-        user: { userId: user.id, name: user.username, email: user.email },
-        token,
-      });
-    }
-
-    res
-      .status(400)
-      .json({ ok: false, message: `invalid email and or password` });
+    return res.status(200).json({
+      ok: true,
+      user: { userId: user.id, name: user.username, email: user.email },
+      token,
+    });
+    
   } catch (err) {
     console.log(err);
     res.status(500).json({

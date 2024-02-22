@@ -1,6 +1,6 @@
-const { response, request } = require("express");
+const { response, request } = require('express');
 
-const { Event } = require("../models");
+const { Event } = require('../models');
 
 // todo <============================== get all events===================================>
 
@@ -9,15 +9,15 @@ const getAllEvents = async (req, res = response) => {
     const userId = req?.userId;
     if (!!userId) {
       // !! we are populating user data inside the populate first parameter is  pointing to the user model and the second parameter is specifying to the which data we need to populate , instead of populating the whole user model.
-      const event = await Event.find().populate("user", "username email");
+      const event = await Event.find().populate('user', 'username email');
 
       res.status(200).json({
         ok: true,
-        message: "getting Events controllers again",
+        message: 'getting Events controllers again',
         event,
       });
     }
-  } catch (error) {
+  } catch (err) {
     console.log(err);
     res.status(500).json({
       ok: false,
@@ -25,6 +25,7 @@ const getAllEvents = async (req, res = response) => {
     });
   }
 };
+console.log(getAllEvents());
 
 // todo <============================== create new event===================================>
 
@@ -48,7 +49,7 @@ const createNewEvent = async (req = request, res = response) => {
 
       return res.status(200).json({
         ok: true,
-        message: "new event created successfully",
+        message: 'new event created successfully',
         event: {
           ...userMetaData,
           eventData: event,
@@ -56,7 +57,7 @@ const createNewEvent = async (req = request, res = response) => {
       });
     }
 
-    res.status(401).json({ ok: false, message: "user not Authenticated" });
+    res.status(401).json({ ok: false, message: 'user not Authenticated' });
   } catch (error) {
     console.log(err);
     res.status(500).json({
@@ -66,53 +67,46 @@ const createNewEvent = async (req = request, res = response) => {
   }
 };
 
-// todo <============================== update event===================================>
-
 const updateEvent = async (req = request, res = response) => {
-  const messageId = req?.params?.id;
-
-  const userMetaData = {
-    username: req?.username,
-    userEmail: req?.userEmail,
-    userId: req?.userId,
-    messageId,
-  };
-  const findMessage = await Event.findById(messageId);
+  const eventId = req.params.id;
+  const uid = req.userId;
 
   try {
-    if (!findMessage) {
+    const events = await Event.findById(eventId);
+
+    if (!events) {
       return res.status(404).json({
         ok: false,
-        message: `no message found with this Id ${messageId}`,
+        msg: 'Evento no existe por ese id',
       });
     }
 
-    if (!!findMessage && findMessage?.user.toString() === req?.userId) {
-      const update = req?.body;
-
-      // !! needs 3 arguments id , new update and the options
-      const updatedEvent = await Event.findByIdAndUpdate(messageId, update, {
-        new: true,
-        runValidators: true,
-      });
-
-      return res.status(200).json({
-        ok: true,
-        message: "event updated",
-        ...userMetaData,
-        newUpdate: updatedEvent,
+    if (events.user.toString() !== uid) {
+      return res.status(401).json({
+        ok: false,
+        msg: 'No tiene privilegio de editar este events',
       });
     }
 
-    res.status(401).json({
-      ok: false,
-      message: `user ${req?.username} is not the creator of this event, not authorized to update this event`,
+    const newEvent = {
+      ...req.body,
+      user: uid,
+    };
+
+    const newUpdate = await Event.findByIdAndUpdate(eventId, newEvent, {
+      new: true,
     });
-  } catch (err) {
-    console.log(err);
+
+    return res.status(200).json({
+      ok: true,
+      message: 'event updated',
+      newUpdate,
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: false,
-      message: `something went wrong while updating the event -> ${err.message}`,
+      msg: 'Hable con el administrador',
     });
   }
 };
@@ -137,7 +131,7 @@ const deleteEvent = async (req = request, res = response) => {
 
       return res.status(200).json({
         ok: true,
-        message: "event delete",
+        message: 'event delete',
       });
     }
 
