@@ -5,8 +5,6 @@ const { User } = require('../models');
 
 const { jwToken } = require('../helpers/jwToken');
 
-// todo <============================== add new user ===================================>
-
 const addNewUser = async (req, res = response) => {
   try {
     const { email, password } = req.body;
@@ -30,7 +28,7 @@ const addNewUser = async (req, res = response) => {
     // !! sending all meta data if everythings is successfull.
     res.status(201).json({
       ok: true,
-      username: user?.username,
+      name: user?.username,
       email: user?.email,
       message: "new user added to 'DB'",
       token,
@@ -87,8 +85,6 @@ const loginUser = async (req, res = response) => {
   }
 };
 
-// todo <=====================aka renew ========= revalidate token ===================================>
-
 const revalidateToken = async (req, res = response) => {
   //!! we are receiving all user information from the got decoded from validateJwToken middleware.
 
@@ -96,11 +92,11 @@ const revalidateToken = async (req, res = response) => {
 
   // !! we are re-issuing the token to give the user a new token.
   const revalidatedToken = await jwToken(userId, username, userEmail);
-
+  console.log({revalidatedToken});
   res.json({
     ok: true,
     userId,
-    username,
+    name: username,
     userEmail,
     message: 'token revalidated and renew',
     token: revalidatedToken,

@@ -2,8 +2,6 @@ const { response, request } = require('express');
 
 const { Event } = require('../models');
 
-// todo <============================== get all events===================================>
-
 const getAllEvents = async (req, res = response) => {
   try {
     const userId = req?.userId;
@@ -25,13 +23,9 @@ const getAllEvents = async (req, res = response) => {
     });
   }
 };
-console.log(getAllEvents());
-
-// todo <============================== create new event===================================>
 
 const createNewEvent = async (req = request, res = response) => {
   const userId = req?.userId;
-
   const body = req?.body;
 
   const userMetaData = {
@@ -58,7 +52,7 @@ const createNewEvent = async (req = request, res = response) => {
     }
 
     res.status(401).json({ ok: false, message: 'user not Authenticated' });
-  } catch (error) {
+  } catch (err) {
     console.log(err);
     res.status(500).json({
       ok: false,
@@ -77,14 +71,14 @@ const updateEvent = async (req = request, res = response) => {
     if (!events) {
       return res.status(404).json({
         ok: false,
-        msg: 'Evento no existe por ese id',
+        msg: 'this event does not exist',
       });
     }
 
     if (events.user.toString() !== uid) {
       return res.status(401).json({
         ok: false,
-        msg: 'No tiene privilegio de editar este events',
+        msg: 'You dont have the privileges to update this event',
       });
     }
 
@@ -106,16 +100,13 @@ const updateEvent = async (req = request, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: 'Hable con el administrador',
+      msg: 'talk to your administrator',
     });
   }
 };
 
-// todo <============================== delete event===================================>
-
 const deleteEvent = async (req = request, res = response) => {
   const messageId = req?.params?.id;
-
   const findMessage = await Event.findById(messageId);
 
   try {
