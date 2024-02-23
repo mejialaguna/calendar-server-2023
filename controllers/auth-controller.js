@@ -92,7 +92,7 @@ const revalidateToken = async (req, res = response) => {
 
   // !! we are re-issuing the token to give the user a new token.
   const revalidatedToken = await jwToken(userId, username, userEmail);
-  console.log({revalidatedToken});
+
   res.json({
     ok: true,
     userId,
